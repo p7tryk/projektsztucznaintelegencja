@@ -1,13 +1,20 @@
+#+TITLE Sztuczna Inteligencja Kołko i krzyżyk
 * Sztuczna inteligencja
-** team
+Kólko i krzyżyk
++ 7x7
++ 4 horyzontalnie/wertykalnie/diagonalnie by wygrac
+** Zespol
 + Patryk Kaniewski
 + Jakub Kijo
 + Bartlomiej Bala
 + Wojciech Złomek
-** TODO
-+ samo kolko i krzyzyk
-  + logika
-  + wyswietlanie
-  + input
-+ ocena stanu
-+ wybieranie stanu (rozwijanie drzewka)
+** Zadania
+1. samo kolko i krzyzyk (trzeba od tego zaczać)
+   + logika
+   + wyswietlanie
+   + input
+2. Ocena stanu
+   + wszyscy musza nad tym mysleć
+   + każdy implementuje swoje i sprawdzamy skuteczność?????
+3. wybieranie stanu (rozwijanie drzewka)
+   + chcialbym zeby bylo dynamicznie (kazdy postawiony znak zmniejsza ilosc możliwości)
