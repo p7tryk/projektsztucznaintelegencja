@@ -18,3 +18,4 @@ Kólko i krzyżyk
    + każdy implementuje swoje i sprawdzamy skuteczność?????
 3. wybieranie stanu (rozwijanie drzewka)
    + chcialbym zeby bylo dynamicznie (kazdy postawiony znak zmniejsza ilosc możliwości)
+** TODO git gud
