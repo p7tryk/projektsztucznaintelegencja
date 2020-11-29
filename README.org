@@ -8,6 +8,7 @@ Kólko i krzyżyk
 + Jakub Kijo
 + Bartlomiej Bala
 + Wojciech Złomek
++ Michał Koper
 ** Zadania
 1. samo kolko i krzyzyk (trzeba od tego zaczać)
    + logika
