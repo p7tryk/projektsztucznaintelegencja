@@ -2,7 +2,7 @@
 * Sztuczna inteligencja
 Kólko i krzyżyk
 + 7x7
-+ 4 horyzontalnie/wertykalnie/diagonalnie by wygrac
++ 5 horyzontalnie/wertykalnie/diagonalnie by wygrac
 ** Zespol
 + Patryk Kaniewski
 + Jakub Kijo
@@ -11,7 +11,7 @@ Kólko i krzyżyk
 + Michał Koper
 ** Zadania
 1. samo kolko i krzyzyk (trzeba od tego zaczać)
-   + logika
+   + logika 
    + wyswietlanie
    + input
 2. Ocena stanu
@@ -20,3 +20,17 @@ Kólko i krzyżyk
 3. wybieranie stanu (rozwijanie drzewka)
    + chcialbym zeby bylo dynamicznie (kazdy postawiony znak zmniejsza ilosc możliwości)
 ** TODO git gud
+
+
+* idee
+** ranking
+TYLKO TAKIE KTORE MAJA MOZLIWOSC ROZWOJU
+ + porownanie najdluzszych ciagow kazdego gracza
+ + dlugosc wszystkich ciagow danego gracza
+   ++ mnoznik jezeli maja dwa konce wolne
+   ++ odleglosc ciagow od srodka planszy
+** ekspansja
++ im dluzej trwa gra tym wiecej poziomow ekspansji
+** wybieranie wezla
++ sumowanie drogi (my - przeciwniki)
+
