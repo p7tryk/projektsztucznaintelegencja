@@ -6,14 +6,14 @@ CIRCLE = 1
 CROSS  = 2
 SIZE   = 7
 WIN    = 5
-SIDE   = CIRCLE
+START_SIDE  = CROSS
 #
 
 class gamestate:
     """plansza + wartosc stanu gry"""
     plansza = 0
     rank = 0
-    side = CROSS
+    side = START_SIDE
     prev = 0
     def getstate(self):
         return self.plansza
@@ -36,7 +36,7 @@ class gamestate:
         self.print()
         return False
     def makemove(self,x,y):
-        #TODO sprawdzic czy legalny
+        #nie sprawdzamy czy jest legalny ale chuj
         self.plansza[x,y] = self.side
         self.checkwin()
 
@@ -46,16 +46,29 @@ class gamestate:
             self.side = CIRCLE
 
     def manualmove(self):
-        x = input("wpisz x dla " + str(self.side) + "\n")
-        y = input("wpisz y dla " + str(self.side) + "\n")
-        self.makemove(x,y)
+        x = input("wpisz x dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
+        y = input("wpisz y dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
+        self.makemove(int(x),int(y))
         self.checkwin()
+    def get(self, x, y):
+        temp = self.plansza[x,y]
+        if temp == CROSS:
+            return "X"
+        if temp == CIRCLE:
+            return "O"
+        else:
+            return " "
+        
 
     def automatedmove(self):
+        """ tutaj wszystko zwiazane z sztuczna intelgencja"""
         g = 0
     def print(self):
-        print(self.plansza)
-
+        for x in range(0,SIZE):
+            print("\n----------------------------")
+            for y in range(0, SIZE):
+                print(" " + self.get(x,y) + " ", end = "|")
+        print("\n----------------------------", end = "\n")
 
 
 
