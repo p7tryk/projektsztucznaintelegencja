@@ -19,6 +19,15 @@ class gamestate:
     score = 0
     side = START_SIDE
     prev = 0
+    
+    
+    
+    def __init__(self, plansza = np.zeros(shape = (SIZE,SIZE)), side = START_SIDE):
+        self.plansza = plansza
+        self.side = side
+        self.prev = plansza
+        
+        
     def getstate(self):
         return self.plansza
 
@@ -51,7 +60,6 @@ class gamestate:
         x = input("wpisz x dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
         y = input("wpisz y dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
         self.makemove(int(y)-1,int(x)-1)
-        checkwin(self.plansza)
     def get(self, x, y):
         temp = self.plansza[x,y]
         if temp == CROSS:
@@ -66,6 +74,7 @@ class gamestate:
         state.print()
         """ tutaj wszystko zwiazane z sztuczna intelgencja"""
         g = 0
+        
     def print(self):
         for x in range(0,SIZE):
             print("\n----------------------------")
@@ -84,58 +93,45 @@ def expand(plansza,side):
         for y in range(SIZE):
             if plansza[x,y] != 0:
                 #TODO jak kopiowac te numpy array
-                newplansza = plansza
-                newplansza[x,y] = side
-                lista.append(newplansza)
+                if canYou(plansza, x, y):
+                    newplansza = gamestate(plansza,side)
+                    newplansza.makemove(x,y)
+                    lista.append(newplansza)
 
     return lista
+
+def canYou(plansza, x,y):
+    if plansza[x,y] == CROSS or plansza[x,y] == CIRCLE:
+            return False
+    return True
 
 def score(lista):
     for element in lista:
         #TODO jakas logika nadawania wartosci
         element = 0
+        
+      
+def longestPath(plansza):
+    return
+    
+    
+
+
 def choosePath(lista):
     #TODO BFS? DFS?
     lista = 0
 
 #wincheck
-def winCols(curplansza):
-    """wygrywajace kolumny"""
-    for x in range(SIZE):
-        #circle
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CIRCLE:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-                else:
-                    count=0
-            if longestcount >=4:
-                return True
-   
-            #cross
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CROSS:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-                else:
-                    count=0
-            if longestcount >=4:
-                return True
-        #default
-        return False
-
 def winRows(curplansza):
     """wygrywajace kolumny"""
+    
+    scoreCROSS = 0
+    scoreCIRCLE = 0
     for x in range(SIZE):
-        #circle
+        temp = 0
         count = 0
         longestcount = 0
+       
         for y in range(SIZE):
             if curplansza[x,y] == CIRCLE:
                 count+=1
@@ -143,23 +139,147 @@ def winRows(curplansza):
                     longestcount = count
             else:
                 count=0
-            if longestcount >=4:
-                return True
-            
+        if longestcount >=4:
+            return True
+        
+        temp = longestcount
+
             #cross
-            count = 0
-            longestcount = 0
+        count = 0
+        longestcount = 0
         for y in range(SIZE):
             if curplansza[x,y] == CROSS:
                 count+=1
                 if count > longestcount:
                     longestcount = count
-                else:
-                    count=0
-            if longestcount >=4:
-                return True
+            else:
+                count=0
+        if longestcount >=4:
+            return True
+        if temp > scoreCIRCLE:
+            scoreCIRCLE = temp
+        if longestcount > scoreCROSS:
+            scoreCROSS = longestcount
+    print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
         #default
-        return False
+    return False
+
+def scoreRows(curplansza):
+    """wygrywajace kolumny"""
+    
+    scoreCROSS = 0
+    scoreCIRCLE = 0
+    for x in range(SIZE):
+        temp = 0
+        count = 0
+        longestcount = 0
+       
+        for y in range(SIZE):
+            if curplansza[x,y] == CIRCLE:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        
+        
+        temp = longestcount
+
+            #cross
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[x,y] == CROSS:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        
+        if temp > scoreCIRCLE:
+            scoreCIRCLE = temp
+        if longestcount > scoreCROSS:
+            scoreCROSS = longestcount
+    print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
+        #default
+    return scoreCIRCLE,scoreCROSS
+
+
+def winCols(curplansza):
+    scoreCROSS = 0
+    scoreCIRCLE = 0
+    for x in range(SIZE):
+        temp = 0
+        count = 0
+        longestcount = 0
+       
+        for y in range(SIZE):
+            if curplansza[y,x] == CIRCLE:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        if longestcount >=4:
+            return True
+        
+        temp = longestcount
+
+            #cross
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[y,x] == CROSS:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        if longestcount >=4:
+            return True
+        if temp > scoreCIRCLE:
+            scoreCIRCLE = temp
+        if longestcount > scoreCROSS:
+            scoreCROSS = longestcount
+    print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
+        #default
+    return False
+
+def scoreCols(curplansza):
+    scoreCROSS = 0
+    scoreCIRCLE = 0
+    for x in range(SIZE):
+        temp = 0
+        count = 0
+        longestcount = 0
+       
+        for y in range(SIZE):
+            if curplansza[y,x] == CIRCLE:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        
+        temp = longestcount
+
+            #cross
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[y,x] == CROSS:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        if temp > scoreCIRCLE:
+            scoreCIRCLE = temp
+        if longestcount > scoreCROSS:
+            scoreCROSS = longestcount
+    print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
+        #default
+    return scoreCIRCLE,scoreCROSS
 
 def winDiag(curplansza):
     """wygrywanie przez skos"""
@@ -170,21 +290,20 @@ def checkwin(curplansza):
     """logika sprawdzania win condition"""
     #LATER: teoretycznie nie musimy sprawdzac ale wtedy nasze AI bedzie dzialac zawsze (nawet jak wygrywamy)
     #print("nie sprawdzam")
-    win = False
     
-    win = winRows(curplansza)
-    if win:
+
+    if winRows(curplansza):
         print("win")
         return True
-    win = winCols(curplansza)
-    if win:
+    
+    if winCols(curplansza):
         print("win")
         return True
-    win = winDiag(curplansza)
-    if win:
+   
+    if winDiag(curplansza):
         print("win")
         return True
-    return win
+    return False
 
 
 #gameloop
@@ -201,4 +320,3 @@ while(1):
         state.automatedmove()
     if PLAYER_FIRST:
         state.manualmove()
-
