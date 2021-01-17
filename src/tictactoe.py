@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """ logika gry kolko i krzyzyk """
 import numpy as np
 
