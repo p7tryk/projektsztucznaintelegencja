@@ -1,6 +1,10 @@
 """ logika gry kolko i krzyzyk """
 import numpy as np
 
+#gamemode
+PLAYER_FIRST = True
+PVP_MODE = True
+
 #constants
 CIRCLE = 1
 CROSS  = 2
@@ -12,26 +16,27 @@ START_SIDE  = CROSS
 class gamestate:
     """plansza + wartosc stanu gry"""
     plansza = 0
-    rank = 0
+    score = 0
     side = START_SIDE
     prev = 0
     def getstate(self):
         return self.plansza
 
-    def getrank(self):
-        return self.rank
+    def getscore(self):
+        return self.score
 
     def setState(self, inplansza):
         self.plansza = inplansza
 
-    def setrank(self,value):
-        self.rank = value
+    def setscore(self,value):
+        self.score = value
 
     def genState(self):
         self.plansza = np.zeros(shape = (SIZE,SIZE))
 
     def checkwin(self):
         """logika sprawdzania win condition"""
+        #LATER: teoretycznie nie musimy sprawdzac ale wtedy nasze AI bedzie dzialac zawsze (nawet jak wygrywamy)
         print("nie sprawdzam")
         self.print()
         return False
@@ -48,7 +53,7 @@ class gamestate:
     def manualmove(self):
         x = input("wpisz x dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
         y = input("wpisz y dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
-        self.makemove(int(x),int(y))
+        self.makemove(int(x)-1,int(y)-1)
         self.checkwin()
     def get(self, x, y):
         temp = self.plansza[x,y]
@@ -79,14 +84,15 @@ def expand(plansza,side):
     lista = []
     for x in range(SIZE):
         for y in range(SIZE):
-            if plansza[x][y] != 0:
+            if plansza[x,y] != 0:
+                #TODO jak kopiowac te numpy array
                 newplansza = plansza
-                newplansza[x][y] = side
+                newplansza[x,y] = side
                 lista.append(newplansza)
 
     return lista
 
-def rank(lista):
+def score(lista):
     for element in lista:
         #TODO jakas logika nadawania wartosci
         element = 0
@@ -99,8 +105,15 @@ def choosePath(lista):
 #gameloop
 state = gamestate()
 state.genState()
-
+state.print()
 while(1):
-    state.print()
-    state.manualmove()
-    state.manualmove()
+    #game loop tu sumie nic nie zmieniac juz nigdy
+    if PLAYER_FIRST:
+        state.manualmove()
+    if PVP_MODE:
+        state.manualmove()
+    else:
+        state.automatedmove()
+    if PLAYER_FIRST:
+        state.manualmove()
+        
