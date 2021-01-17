@@ -34,16 +34,12 @@ class gamestate:
     def genState(self):
         self.plansza = np.zeros(shape = (SIZE,SIZE))
 
-    def checkwin(self):
-        """logika sprawdzania win condition"""
-        #LATER: teoretycznie nie musimy sprawdzac ale wtedy nasze AI bedzie dzialac zawsze (nawet jak wygrywamy)
-        print("nie sprawdzam")
-        self.print()
-        return False
+    
+    
     def makemove(self,x,y):
         #nie sprawdzamy czy jest legalny ale chuj
         self.plansza[x,y] = self.side
-        self.checkwin()
+        checkwin(self.plansza)
 
         if self.side == CIRCLE:
             self.side = CROSS
@@ -51,10 +47,11 @@ class gamestate:
             self.side = CIRCLE
 
     def manualmove(self):
+        state.print()
         x = input("wpisz x dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
         y = input("wpisz y dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
-        self.makemove(int(x)-1,int(y)-1)
-        self.checkwin()
+        self.makemove(int(y)-1,int(x)-1)
+        checkwin(self.plansza)
     def get(self, x, y):
         temp = self.plansza[x,y]
         if temp == CROSS:
@@ -66,6 +63,7 @@ class gamestate:
         
 
     def automatedmove(self):
+        state.print()
         """ tutaj wszystko zwiazane z sztuczna intelgencja"""
         g = 0
     def print(self):
@@ -100,6 +98,93 @@ def choosePath(lista):
     #TODO BFS? DFS?
     lista = 0
 
+#wincheck
+def winCols(curplansza):
+    """wygrywajace kolumny"""
+    for x in range(SIZE):
+        #circle
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[x,y] == CIRCLE:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+                else:
+                    count=0
+            if longestcount >=4:
+                return True
+   
+            #cross
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[x,y] == CROSS:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+                else:
+                    count=0
+            if longestcount >=4:
+                return True
+        #default
+        return False
+
+def winRows(curplansza):
+    """wygrywajace kolumny"""
+    for x in range(SIZE):
+        #circle
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[x,y] == CIRCLE:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+            if longestcount >=4:
+                return True
+            
+            #cross
+            count = 0
+            longestcount = 0
+        for y in range(SIZE):
+            if curplansza[x,y] == CROSS:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+                else:
+                    count=0
+            if longestcount >=4:
+                return True
+        #default
+        return False
+
+def winDiag(curplansza):
+    """wygrywanie przez skos"""
+    #FIXME: zrobic
+    return False
+
+def checkwin(curplansza):
+    """logika sprawdzania win condition"""
+    #LATER: teoretycznie nie musimy sprawdzac ale wtedy nasze AI bedzie dzialac zawsze (nawet jak wygrywamy)
+    #print("nie sprawdzam")
+    win = False
+    
+    win = winRows(curplansza)
+    if win:
+        print("win")
+        return True
+    win = winCols(curplansza)
+    if win:
+        print("win")
+        return True
+    win = winDiag(curplansza)
+    if win:
+        print("win")
+        return True
+    return win
 
 
 #gameloop
@@ -116,4 +201,4 @@ while(1):
         state.automatedmove()
     if PLAYER_FIRST:
         state.manualmove()
-        
+
