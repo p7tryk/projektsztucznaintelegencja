@@ -27,8 +27,8 @@ Kólko i krzyżyk
 TYLKO TAKIE KTORE MAJA MOZLIWOSC ROZWOJU
  + porownanie najdluzszych ciagow kazdego gracza
  + dlugosc wszystkich ciagow danego gracza
-   ++ mnoznik jezeli maja dwa konce wolne
-   ++ odleglosc ciagow od srodka planszy
+   * mnoznik jezeli maja dwa konce wolne
+   * odleglosc ciagow od srodka planszy
 ** ekspansja
 + im dluzej trwa gra tym wiecej poziomow ekspansji
 ** wybieranie wezla
