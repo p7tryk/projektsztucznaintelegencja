@@ -2,6 +2,8 @@
 """ logika gry kolko i krzyzyk """
 import numpy as np
 import score as sc
+import win as wn
+
 
 #gamemode
 PLAYER_FIRST = True
@@ -247,96 +249,15 @@ def debugPlansza(plansza):
     print("                            " + "kolko score=" + str(tempstate.scoreCircle))
 
 #wincheck
-def winRows(curplansza):
-    """wygrywajace kolumny"""
-
-    scoreCROSS = 0
-    scoreCIRCLE = 0
-    for x in range(SIZE):
-        temp = 0
-        count = 0
-        longestcount = 0
-
-        for y in range(SIZE):
-            if curplansza[x,y] == CIRCLE:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-            else:
-                count=0
-        if longestcount >4:
-            return True
-
-        temp = longestcount
-
-            #cross
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CROSS:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-            else:
-                count=0
-        if longestcount >4:
-            return True
-        if temp > scoreCIRCLE:
-            scoreCIRCLE = temp
-        if longestcount > scoreCROSS:
-            scoreCROSS = longestcount
-    #print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
-        #default
-    return False
 
 
 
 
 
-def winCols(curplansza):
-    scoreCROSS = 0
-    scoreCIRCLE = 0
-    for x in range(SIZE):
-        temp = 0
-        count = 0
-        longestcount = 0
-       
-        for y in range(SIZE):
-            if curplansza[y,x] == CIRCLE:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-            else:
-                count=0
-        if longestcount >4:
-            return True
-        
-        temp = longestcount
 
-            #cross
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[y,x] == CROSS:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-            else:
-                count=0
-        if longestcount >4:
-            return True
-        if temp > scoreCIRCLE:
-            scoreCIRCLE = temp
-        if longestcount > scoreCROSS:
-            scoreCROSS = longestcount
-    #print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
-        #default
-    return False
 
-def winDiag(curplansza):
-    """wygrywanie przez skos"""
-    #FIXME: zrobic
-    return False
+
+
 
 def checkwin(curplansza):
     """logika sprawdzania win condition"""
@@ -344,15 +265,14 @@ def checkwin(curplansza):
     #print("nie sprawdzam")
     
 
-    if winRows(curplansza):
+    if wn.winRows(curplansza):
         print("win rzad")
         return True
     
-    if winCols(curplansza):
+    if wn.winCols(curplansza):
         print("win kolumna")
         return True
-   
-    if winDiag(curplansza):
+    if wn.winDiag(curplansza):
         print("win diag")
         return True
     return False
