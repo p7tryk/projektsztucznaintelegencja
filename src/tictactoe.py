@@ -1,24 +1,28 @@
+#!/usr/bin/env python3
 """ logika gry kolko i krzyzyk """
 import numpy as np
+import score as sc
+import win as wn
+import constants as const
 
-#gamemode
-PLAYER_FIRST = True
-PVP_MODE = True
 
-#constants
-CIRCLE = 1
-CROSS  = 2
-SIZE   = 7
-WIN    = 5
-START_SIDE  = CROSS
+
 #
-
 class gamestate:
     """plansza + wartosc stanu gry"""
     plansza = 0
-    score = 0
-    side = START_SIDE
-    prev = 0
+    scoreCircle = 0
+    scoreCross = 0
+    side = const.START_SIDE
+    prev = None
+    current = False
+
+
+    def __init__(self, plansza = np.zeros(shape = (const.SIZE,const.SIZE)), side = const.START_SIDE):
+        self.plansza = plansza
+        self.side = side
+
+
     def getstate(self):
         return self.plansza
 
@@ -32,173 +36,254 @@ class gamestate:
         self.score = value
 
     def genState(self):
-        self.plansza = np.zeros(shape = (SIZE,SIZE))
+        self.plansza = np.zeros(shape = (const.SIZE,const.SIZE))
 
     
     
     def makemove(self,x,y):
         #nie sprawdzamy czy jest legalny ale chuj
         self.plansza[x,y] = self.side
+
         checkwin(self.plansza)
 
-        if self.side == CIRCLE:
-            self.side = CROSS
+        if self.side == const.CIRCLE:
+            self.side = const.CROSS
         else:
-            self.side = CIRCLE
+            self.side = const.CIRCLE
 
     def manualmove(self):
         state.print()
-        x = input("wpisz x dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
-        y = input("wpisz y dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
+        x = input("wpisz x dla " + ("kółko" if self.side == const.CIRCLE else "krzyżyk") + "\n")
+        y = input("wpisz y dla " + ("kółko" if self.side == const.CIRCLE else "krzyżyk") + "\n")
         self.makemove(int(y)-1,int(x)-1)
-        checkwin(self.plansza)
+        
+
     def get(self, x, y):
         temp = self.plansza[x,y]
-        if temp == CROSS:
+        if temp == const.CROSS:
             return "X"
-        if temp == CIRCLE:
+        if temp == const.CIRCLE:
             return "O"
         else:
             return " "
-        
+
 
     def automatedmove(self):
-        state.print()
+        
         """ tutaj wszystko zwiazane z sztuczna intelgencja"""
-        g = 0
+        #time.sleep(3) #FIXME: usunac na koniec
+
+        level1 = []
+        level2 = []
+        lastlevel = []
+
+        level1 = expand(self,self.side,level1)
+        score(level1)
+        # for element in level1:
+        #     level2 = expand(element.plansza,element.side, level2)
+        # score(level2)
+
+        #TBD ile tych poziomow ma byc
+        #
+        #
+
+        for element in level1:
+            lastlevel = expand(element,element.side, lastlevel)
+        score(lastlevel)
+        desiredState = highestScore(lastlevel,self.side)
+        tempx, tempy = sc.diffState(self.plansza,desiredState.plansza)
+
+        # print("input do automatedmove")
+        # debugPlansza(self.plansza)
+        # print("endinput do automatedmove")
+        print("makemove(" + str(tempx) + "," + str(tempy)+")")
+        self.makemove(tempx,tempy)
+        state.print()
+        return
+
     def print(self):
-        for x in range(0,SIZE):
+        scoreSingle(self)
+        for x in range(0,const.SIZE):
             print("\n----------------------------")
-            for y in range(0, SIZE):
+            for y in range(0, const.SIZE):
                 print(" " + self.get(x,y) + " ", end = "|")
-        print("\n----------------------------", end = "\n")
+        print("\n----------------------------" + "krzyzyk score=" + str(self.scoreCross) , end = "\n")
+        print("                            " + "kolko score=" + str(self.scoreCircle))
 
 
 
 
-
-def expand(plansza,side):
+def expand(oldgamestate,side,lista):
     """ ekspansja """
-    lista = []
-    for x in range(SIZE):
-        for y in range(SIZE):
-            if plansza[x,y] != 0:
-                #TODO jak kopiowac te numpy array
-                newplansza = plansza
-                newplansza[x,y] = side
-                lista.append(newplansza)
-
+    elements = 0
+    for x in range(const.SIZE):
+        for y in range(const.SIZE):
+            if canYou(oldgamestate.plansza, x, y):
+                newgamestate = gamestate(np.copy(oldgamestate.plansza),side)
+                newgamestate.makemove(x,y)
+                newgamestate.prev = oldgamestate
+                lista.append(newgamestate)
+                elements+=1
+    #print("ekspansja zakonczona elementow=" + str(elements))
+    if elements == 0:
+        debugPlansza(oldgamestate.plansza)
     return lista
 
+def canYou(plansza, x,y):
+    if plansza[x,y] == const.CROSS or plansza[x,y] == const.CIRCLE:
+        return False
+    return True
+
 def score(lista):
+    """ nadawanie wartosci, argumenty zawsze kolko,krzyzyk = funkcja()"""
+    #print("scoring len(lista)= " + str(len(lista)))
     for element in lista:
-        #TODO jakas logika nadawania wartosci
-        element = 0
-def choosePath(lista):
-    #TODO BFS? DFS?
-    lista = 0
+        scoreSingle(element)
+ 
+def scoreSingle(element):
+    #FIXME: lepsza logika nadawania wyniku
+    scoreCross = 0
+    scoreCircle = 0
+    tempCircle = 0
+    tempCross = 0
+
+    #najdluzsze sciezki w rzedach
+    tempCircle, tempCross = sc.longestWinStreak(element.plansza)
+    tempCircle *= const.SCORE_LONGEST_MULTIPLIER
+    tempCross *= const.SCORE_LONGEST_MULTIPLIER
+    scoreCross += tempCross*tempCross
+    scoreCircle += tempCircle*tempCircle
+    #ocen najblizsze pola
+    tempCircle, tempCross = sc.freeSpacesScore(element.plansza)
+    tempCircle *= const.SCORE_NEIGHBOUR_MULTIPLIER
+    tempCross *= const.SCORE_NEIGHBOUR_MULTIPLIER
+    scoreCross += tempCross
+    scoreCircle += tempCircle
+    #ocen najblizsze pola
+    tempCircle, tempCross = sc.longestMaybeStreak(element.plansza)
+    tempCircle *= const.SCORE_LONGEST_MULTIPLIER
+    tempCross *= const.SCORE_LONGEST_MULTIPLIER
+    scoreCross += tempCross
+    scoreCircle += tempCircle
+
+    #na pierwszej generacji
+    if element.prev!= None:
+        tempCircle, tempCross = sc.scoreMiddle(element.prev.plansza,element.plansza)
+        scoreCross += tempCross*tempCross
+        scoreCircle += tempCircle*tempCircle
+        
+
+    win = checkwin(element.plansza)
+    if element.side == const.CIRCLE and win:
+        scoreCircle += 100000
+    if element.side == const.CROSS and win:
+        scoreCross += 100000
+
+
+    element.scoreCircle = scoreCircle
+    element.scoreCross = scoreCross
+    return
+
+
+
+def highestScore(lista,side):
+    #BFS
+    scoreList = []
+    for element in lista:
+        temp = 0
+        temp = element.scoreCross-element.scoreCircle
+        while element.prev != None:
+            element = element.prev
+            temp +=element.scoreCross-element.scoreCircle
+        scoreList.append(temp)
+
+    bestState = lista[0]
+    bestScore = 0
+    for tempscore in scoreList:
+        if side == const.CROSS: #jezeli krzyzyk to im wiekszy (na plusie) tym lepiej
+            if tempscore > bestScore:
+                bestScore = tempscore
+                temp = scoreList.index(tempscore)
+                #print("index of scorelist ="+str(temp))
+                bestState = lista[temp]
+        else:
+            if tempscore < bestScore:
+                bestScore = tempscore
+                temp = scoreList.index(tempscore)
+                #print("index of scorelist ="+str(temp))
+                bestState = lista[temp]
+
+    #chemy dostac nastepny ruch
+    for x in range(const.DEPTH-1):
+        bestState = bestState.prev
+    print("best state dla" + ("kółko" if bestState.side == const.CIRCLE else "krzyżyk")\
+          + " "  + str(bestScore))
+    bestState.print()
+    print("endbeststate")
+    return bestState
+
+
+
+def debugPlansza(plansza):
+    tempstate = gamestate(plansza)
+    scoreSingle(tempstate)
+    for x in range(0,const.SIZE):
+        print("\n----------------------------")
+        for y in range(0, const.SIZE):
+            print(" " + tempstate.get(x,y) + " ", end = "|")
+    print("\n----------------------------" + "krzyzyk score=" + str(tempstate.scoreCross) , end = "\n")
+    print("                            " + "kolko score=" + str(tempstate.scoreCircle))
 
 #wincheck
-def winCols(curplansza):
-    """wygrywajace kolumny"""
-    for x in range(SIZE):
-        #circle
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CIRCLE:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-                else:
-                    count=0
-            if longestcount >=4:
-                return True
-   
-            #cross
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CROSS:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-                else:
-                    count=0
-            if longestcount >=4:
-                return True
-        #default
-        return False
 
-def winRows(curplansza):
-    """wygrywajace kolumny"""
-    for x in range(SIZE):
-        #circle
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CIRCLE:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-            else:
-                count=0
-            if longestcount >=4:
-                return True
-            
-            #cross
-            count = 0
-            longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CROSS:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-                else:
-                    count=0
-            if longestcount >=4:
-                return True
-        #default
-        return False
 
-def winDiag(curplansza):
-    """wygrywanie przez skos"""
-    #FIXME: zrobic
-    return False
+
+
+
+
+
+
+
 
 def checkwin(curplansza):
     """logika sprawdzania win condition"""
-    #LATER: teoretycznie nie musimy sprawdzac ale wtedy nasze AI bedzie dzialac zawsze (nawet jak wygrywamy)
+    #FIXME: win po skosie
     #print("nie sprawdzam")
-    win = False
     
-    win = winRows(curplansza)
-    if win:
-        print("win")
+
+    if wn.winRows(curplansza):
+        print("win rzad")
         return True
-    win = winCols(curplansza)
-    if win:
-        print("win")
+    
+    if wn.winCols(curplansza):
+        print("win kolumna")
         return True
-    win = winDiag(curplansza)
-    if win:
-        print("win")
+    if wn.winDiag(curplansza):
+        print("win diag")
         return True
-    return win
+    return False
 
 
 #gameloop
 state = gamestate()
 state.genState()
-state.print()
+state.current = True
 while(1):
     #game loop tu sumie nic nie zmieniac juz nigdy
-    if PLAYER_FIRST:
+    if const.PLAYER_FIRST:
         state.manualmove()
-    if PVP_MODE:
+    if checkwin(state.plansza):
+        print("game over")
+        break
+    if const.PVP_MODE:
         state.manualmove()
     else:
         state.automatedmove()
-    if PLAYER_FIRST:
+    if checkwin(state.plansza):
+        print("game over")
+        break
+    if not const.PLAYER_FIRST:
         state.manualmove()
-
+    if checkwin(state.plansza):
+        print("game over")
+        break
