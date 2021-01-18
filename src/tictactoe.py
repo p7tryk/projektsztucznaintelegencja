@@ -4,7 +4,7 @@ import numpy as np
 
 #gamemode
 PLAYER_FIRST = True
-PVP_MODE = False
+PVP_MODE = True
 
 #constants
 CIRCLE = 1
@@ -17,7 +17,8 @@ START_SIDE  = CROSS
 class gamestate:
     """plansza + wartosc stanu gry"""
     plansza = 0
-    score = 0
+    scoreCircle = 0
+    scoreCross = 0
     side = START_SIDE
     prev = 0
     current = False
@@ -49,7 +50,8 @@ class gamestate:
     def makemove(self,x,y):
         #nie sprawdzamy czy jest legalny ale chuj
         self.plansza[x,y] = self.side
-        
+
+        checkwin(self.plansza)
 
         if self.side == CIRCLE:
             self.side = CROSS
@@ -61,7 +63,7 @@ class gamestate:
         x = input("wpisz x dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
         y = input("wpisz y dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
         self.makemove(int(y)-1,int(x)-1)
-        checkwin(self.plansza)
+        
 
     def get(self, x, y):
         temp = self.plansza[x,y]
@@ -74,7 +76,7 @@ class gamestate:
 
 
     def automatedmove(self):
-        state.print()
+        
         """ tutaj wszystko zwiazane z sztuczna intelgencja"""
         level1 = []
         level2 = []
@@ -97,14 +99,17 @@ class gamestate:
 
         tempx, tempy = diffState(self.plansza,desiredState)
         self.makemove(tempx,tempy)
+        state.print()
         return
 
     def print(self):
+        scoreSingle(self)
         for x in range(0,SIZE):
             print("\n----------------------------")
             for y in range(0, SIZE):
                 print(" " + self.get(x,y) + " ", end = "|")
-        print("\n----------------------------", end = "\n")
+        print("\n----------------------------" + "krzyzyk score=" + str(self.scoreCross) , end = "\n")
+        print("                            " + "kolko score=" + str(self.scoreCircle))
 
 
 def diffState(origplansza,newplansza):
@@ -140,15 +145,15 @@ def score(lista):
         scoreSingle(element)
  
 def scoreSingle(element):
-    #TODO jakas logika nadawania wartosci
+    #FIXME: lepsza logika nadawania wyniku
     scoreCross = 0
     scoreCircle = 0
     tempCircle = 0
     tempCross = 0
 
     tempCircle, tempCross = longestWinStreak(element.plansza)
-    scoreCross += tempCross
-    scoreCircle += tempCircle
+    scoreCross += tempCross*tempCross
+    scoreCircle += tempCircle*tempCircle
 
     element.scoreCircle = scoreCircle
     element.scoreCross = scoreCross
@@ -225,7 +230,7 @@ def winRows(curplansza):
                     longestcount = count
             else:
                 count=0
-        if longestcount >=4:
+        if longestcount >4:
             return True
 
         temp = longestcount
@@ -240,7 +245,7 @@ def winRows(curplansza):
                     longestcount = count
             else:
                 count=0
-        if longestcount >=4:
+        if longestcount >4:
             return True
         if temp > scoreCIRCLE:
             scoreCIRCLE = temp
@@ -344,7 +349,7 @@ def winCols(curplansza):
                     longestcount = count
             else:
                 count=0
-        if longestcount >=4:
+        if longestcount >4:
             return True
         
         temp = longestcount
@@ -359,7 +364,7 @@ def winCols(curplansza):
                     longestcount = count
             else:
                 count=0
-        if longestcount >=4:
+        if longestcount >4:
             return True
         if temp > scoreCIRCLE:
             scoreCIRCLE = temp
@@ -417,11 +422,11 @@ def checkwin(curplansza):
     
 
     if winRows(curplansza):
-        print("win")
+        print("win rzad")
         return True
     
     if winCols(curplansza):
-        print("win")
+        print("win kolumna")
         return True
    
     if winDiag(curplansza):
@@ -438,9 +443,18 @@ while(1):
     #game loop tu sumie nic nie zmieniac juz nigdy
     if PLAYER_FIRST:
         state.manualmove()
+    if checkwin(state.plansza):
+        print("game over")
+        break
     if PVP_MODE:
         state.manualmove()
     else:
         state.automatedmove()
-    if PLAYER_FIRST:
+    if checkwin(state.plansza):
+        print("game over")
+        break
+    if not PLAYER_FIRST:
         state.manualmove()
+    if checkwin(state.plansza):
+        print("game over")
+        break
