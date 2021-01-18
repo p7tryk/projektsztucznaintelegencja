@@ -38,8 +38,7 @@ class gamestate:
     def genState(self):
         self.plansza = np.zeros(shape = (const.SIZE,const.SIZE))
 
-    
-    
+
     def makemove(self,x,y):
         #nie sprawdzamy czy jest legalny ale chuj
         self.plansza[x,y] = self.side
@@ -165,6 +164,12 @@ def scoreSingle(element):
     tempCross *= const.SCORE_LONGEST_MULTIPLIER
     scoreCross += tempCross
     scoreCircle += tempCircle
+    #ocen najblizsze pola
+    tempCircle, tempCross = sc.scoreMiddle(element.plansza)
+    tempCircle *= const.SCORE_MIDDLE_MULTPLIER
+    tempCross *= const.SCORE_MIDDLE_MULTPLIER
+    scoreCross += tempCross
+    scoreCircle += tempCircle
 
     #na pierwszej generacji
     if element.prev!= None:
@@ -175,9 +180,9 @@ def scoreSingle(element):
 
     win = checkwin(element.plansza)
     if element.side == const.CIRCLE and win:
-        scoreCircle += 100000
+        scoreCircle += sc.SCORE_WIN_MULTIPLER
     if element.side == const.CROSS and win:
-        scoreCross += 100000
+        scoreCross += sc.SCORE_WIN_MULTIPLER
 
 
     element.scoreCircle = scoreCircle
