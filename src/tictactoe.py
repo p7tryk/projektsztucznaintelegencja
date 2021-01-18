@@ -164,6 +164,12 @@ def scoreSingle(element):
     tempCross *= const.SCORE_LONGEST_MULTIPLIER
     scoreCross += tempCross
     scoreCircle += tempCircle
+    #ocen najblizsze pola
+    tempCircle, tempCross = sc.scoreMiddle(element.plansza)
+    tempCircle *= const.SCORE_MIDDLE_MULTPLIER
+    tempCross *= const.SCORE_MIDDLE_MULTPLIER
+    scoreCross += tempCross
+    scoreCircle += tempCircle
 
     #na pierwszej generacji
     if element.prev!= None:
