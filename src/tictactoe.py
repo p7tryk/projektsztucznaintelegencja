@@ -13,6 +13,7 @@ CROSS  = 2
 SIZE   = 7
 WIN    = 5
 START_SIDE  = CROSS
+DEPTH = 2
 #
 
 class gamestate:
@@ -100,9 +101,9 @@ class gamestate:
         desiredState = highestScore(lastlevel,self.side)
         tempx, tempy = diffState(self.plansza,desiredState.plansza)
 
-        print("input do automatedmove")
-        debugPlansza(self.plansza)
-        print("endinput do automatedmove")
+        # print("input do automatedmove")
+        # debugPlansza(self.plansza)
+        # print("endinput do automatedmove")
         print("makemove(" + str(tempx) + "," + str(tempy)+")")
         self.makemove(tempx,tempy)
         state.print()
@@ -145,7 +146,7 @@ def expand(oldgamestate,side,lista):
                 newgamestate.prev = oldgamestate
                 lista.append(newgamestate)
                 elements+=1
-    print("ekspansja zakonczona elementow=" + str(elements))
+    #print("ekspansja zakonczona elementow=" + str(elements))
     if elements == 0:
         debugPlansza(oldgamestate.plansza)
     return lista
@@ -157,7 +158,7 @@ def canYou(plansza, x,y):
 
 def score(lista):
     """ nadawanie wartosci, argumenty zawsze kolko,krzyzyk = funkcja()"""
-    print("scoring len(lista)= " + str(len(lista)))
+    #print("scoring len(lista)= " + str(len(lista)))
     for element in lista:
         scoreSingle(element)
  
@@ -172,6 +173,13 @@ def scoreSingle(element):
     scoreCross += tempCross*tempCross
     scoreCircle += tempCircle*tempCircle
 
+    win = checkwin(element.plansza)
+    if element.side == CIRCLE and win:
+        scoreCircle += 1000
+    if element.side == CROSS and win:
+        scoreCross += 1000
+
+
     element.scoreCircle = scoreCircle
     element.scoreCross = scoreCross
     return
@@ -183,8 +191,6 @@ def highestScore(lista,side):
         temp = 0
         temp = element.scoreCross-element.scoreCircle
         while element.prev != None:
-            if element.prev.prev != None:
-                break
             element = element.prev
             temp +=element.scoreCross-element.scoreCircle
         scoreList.append(temp)
@@ -196,17 +202,17 @@ def highestScore(lista,side):
             if tempscore > bestScore:
                 bestScore = score
                 temp = scoreList.index(score)
-                print("index of scorelist ="+str(temp))
+                #print("index of scorelist ="+str(temp))
                 bestState = lista[temp]
         else:
             if tempscore < bestScore:
                 bestScore = score
                 temp = scoreList.index(score)
-                print("index of scorelist ="+str(temp))
+                #print("index of scorelist ="+str(temp))
                 bestState = lista[temp]
 
     #chemy dostac nastepny ruch
-    while bestState.current == False:
+    for x in range(DEPTH-1):
         bestState = bestState.prev
     print("best state dla" + ("kółko" if bestState.side == CIRCLE else "krzyżyk")\
           + " "  + str(bestScore))
@@ -280,7 +286,7 @@ def winRows(curplansza):
             scoreCIRCLE = temp
         if longestcount > scoreCROSS:
             scoreCROSS = longestcount
-    print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
+    #print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
         #default
     return False
 
@@ -399,7 +405,7 @@ def winCols(curplansza):
             scoreCIRCLE = temp
         if longestcount > scoreCROSS:
             scoreCROSS = longestcount
-    print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
+    #print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
         #default
     return False
 
@@ -410,7 +416,7 @@ def winDiag(curplansza):
 
 def checkwin(curplansza):
     """logika sprawdzania win condition"""
-    #LATER: teoretycznie nie musimy sprawdzac ale wtedy nasze AI bedzie dzialac zawsze (nawet jak wygrywamy)
+    #FIXME: win po skosie
     #print("nie sprawdzam")
     
 
