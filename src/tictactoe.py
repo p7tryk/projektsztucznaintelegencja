@@ -3,23 +3,9 @@
 import numpy as np
 import score as sc
 import win as wn
+import constants as const
 
 
-#gamemode
-PLAYER_FIRST = True
-PVP_MODE = False
-
-#constants
-EMPTY  = 0
-CIRCLE = 1
-CROSS  = 2
-SIZE   = 7
-WIN    = 5
-START_SIDE  = CROSS
-DEPTH = 2
-#ai variables
-SCORE_LONGEST_MULTIPLIER = 10
-SCORE_NEIGHBOUR_MULTIPLIER = 2
 
 #
 class gamestate:
@@ -27,12 +13,12 @@ class gamestate:
     plansza = 0
     scoreCircle = 0
     scoreCross = 0
-    side = START_SIDE
+    side = const.START_SIDE
     prev = None
     current = False
 
 
-    def __init__(self, plansza = np.zeros(shape = (SIZE,SIZE)), side = START_SIDE):
+    def __init__(self, plansza = np.zeros(shape = (const.SIZE,const.SIZE)), side = const.START_SIDE):
         self.plansza = plansza
         self.side = side
 
@@ -50,7 +36,7 @@ class gamestate:
         self.score = value
 
     def genState(self):
-        self.plansza = np.zeros(shape = (SIZE,SIZE))
+        self.plansza = np.zeros(shape = (const.SIZE,const.SIZE))
 
     
     
@@ -60,23 +46,23 @@ class gamestate:
 
         checkwin(self.plansza)
 
-        if self.side == CIRCLE:
-            self.side = CROSS
+        if self.side == const.CIRCLE:
+            self.side = const.CROSS
         else:
-            self.side = CIRCLE
+            self.side = const.CIRCLE
 
     def manualmove(self):
         state.print()
-        x = input("wpisz x dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
-        y = input("wpisz y dla " + ("kółko" if self.side == CIRCLE else "krzyżyk") + "\n")
+        x = input("wpisz x dla " + ("kółko" if self.side == const.CIRCLE else "krzyżyk") + "\n")
+        y = input("wpisz y dla " + ("kółko" if self.side == const.CIRCLE else "krzyżyk") + "\n")
         self.makemove(int(y)-1,int(x)-1)
         
 
     def get(self, x, y):
         temp = self.plansza[x,y]
-        if temp == CROSS:
+        if temp == const.CROSS:
             return "X"
-        if temp == CIRCLE:
+        if temp == const.CIRCLE:
             return "O"
         else:
             return " "
@@ -117,9 +103,9 @@ class gamestate:
 
     def print(self):
         scoreSingle(self)
-        for x in range(0,SIZE):
+        for x in range(0,const.SIZE):
             print("\n----------------------------")
-            for y in range(0, SIZE):
+            for y in range(0, const.SIZE):
                 print(" " + self.get(x,y) + " ", end = "|")
         print("\n----------------------------" + "krzyzyk score=" + str(self.scoreCross) , end = "\n")
         print("                            " + "kolko score=" + str(self.scoreCircle))
@@ -130,8 +116,8 @@ class gamestate:
 def expand(oldgamestate,side,lista):
     """ ekspansja """
     elements = 0
-    for x in range(SIZE):
-        for y in range(SIZE):
+    for x in range(const.SIZE):
+        for y in range(const.SIZE):
             if canYou(oldgamestate.plansza, x, y):
                 newgamestate = gamestate(np.copy(oldgamestate.plansza),side)
                 newgamestate.makemove(x,y)
@@ -144,7 +130,7 @@ def expand(oldgamestate,side,lista):
     return lista
 
 def canYou(plansza, x,y):
-    if plansza[x,y] == CROSS or plansza[x,y] == CIRCLE:
+    if plansza[x,y] == const.CROSS or plansza[x,y] == const.CIRCLE:
         return False
     return True
 
@@ -163,20 +149,20 @@ def scoreSingle(element):
 
     #najdluzsze sciezki w rzedach
     tempCircle, tempCross = sc.longestWinStreak(element.plansza)
-    tempCircle *= SCORE_LONGEST_MULTIPLIER
-    tempCross *= SCORE_LONGEST_MULTIPLIER
+    tempCircle *= const.SCORE_LONGEST_MULTIPLIER
+    tempCross *= const.SCORE_LONGEST_MULTIPLIER
     scoreCross += tempCross*tempCross
     scoreCircle += tempCircle*tempCircle
     #ocen najblizsze pola
     tempCircle, tempCross = sc.freeSpacesScore(element.plansza)
-    tempCircle *= SCORE_NEIGHBOUR_MULTIPLIER
-    tempCross *= SCORE_NEIGHBOUR_MULTIPLIER
+    tempCircle *= const.SCORE_NEIGHBOUR_MULTIPLIER
+    tempCross *= const.SCORE_NEIGHBOUR_MULTIPLIER
     scoreCross += tempCross
     scoreCircle += tempCircle
     #ocen najblizsze pola
     tempCircle, tempCross = sc.longestMaybeStreak(element.plansza)
-    tempCircle *= SCORE_LONGEST_MULTIPLIER
-    tempCross *= SCORE_LONGEST_MULTIPLIER
+    tempCircle *= const.SCORE_LONGEST_MULTIPLIER
+    tempCross *= const.SCORE_LONGEST_MULTIPLIER
     scoreCross += tempCross
     scoreCircle += tempCircle
 
@@ -188,9 +174,9 @@ def scoreSingle(element):
         
 
     win = checkwin(element.plansza)
-    if element.side == CIRCLE and win:
+    if element.side == const.CIRCLE and win:
         scoreCircle += 100000
-    if element.side == CROSS and win:
+    if element.side == const.CROSS and win:
         scoreCross += 100000
 
 
@@ -214,7 +200,7 @@ def highestScore(lista,side):
     bestState = lista[0]
     bestScore = 0
     for tempscore in scoreList:
-        if side == CROSS: #jezeli krzyzyk to im wiekszy (na plusie) tym lepiej
+        if side == const.CROSS: #jezeli krzyzyk to im wiekszy (na plusie) tym lepiej
             if tempscore > bestScore:
                 bestScore = tempscore
                 temp = scoreList.index(tempscore)
@@ -228,9 +214,9 @@ def highestScore(lista,side):
                 bestState = lista[temp]
 
     #chemy dostac nastepny ruch
-    for x in range(DEPTH-1):
+    for x in range(const.DEPTH-1):
         bestState = bestState.prev
-    print("best state dla" + ("kółko" if bestState.side == CIRCLE else "krzyżyk")\
+    print("best state dla" + ("kółko" if bestState.side == const.CIRCLE else "krzyżyk")\
           + " "  + str(bestScore))
     bestState.print()
     print("endbeststate")
@@ -241,9 +227,9 @@ def highestScore(lista,side):
 def debugPlansza(plansza):
     tempstate = gamestate(plansza)
     scoreSingle(tempstate)
-    for x in range(0,SIZE):
+    for x in range(0,const.SIZE):
         print("\n----------------------------")
-        for y in range(0, SIZE):
+        for y in range(0, const.SIZE):
             print(" " + tempstate.get(x,y) + " ", end = "|")
     print("\n----------------------------" + "krzyzyk score=" + str(tempstate.scoreCross) , end = "\n")
     print("                            " + "kolko score=" + str(tempstate.scoreCircle))
@@ -284,19 +270,19 @@ state.genState()
 state.current = True
 while(1):
     #game loop tu sumie nic nie zmieniac juz nigdy
-    if PLAYER_FIRST:
+    if const.PLAYER_FIRST:
         state.manualmove()
     if checkwin(state.plansza):
         print("game over")
         break
-    if PVP_MODE:
+    if const.PVP_MODE:
         state.manualmove()
     else:
         state.automatedmove()
     if checkwin(state.plansza):
         print("game over")
         break
-    if not PLAYER_FIRST:
+    if not const.PLAYER_FIRST:
         state.manualmove()
     if checkwin(state.plansza):
         print("game over")

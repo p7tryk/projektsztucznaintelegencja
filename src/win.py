@@ -1,23 +1,17 @@
-EMPTY  = 0
-CIRCLE = 1
-CROSS  = 2
-SIZE   = 7
-WIN    = 5
-START_SIDE  = CROSS
-DEPTH = 2
+import constants as const
 
 def winRows(curplansza):
     """wygrywajace kolumny"""
 
     scoreCROSS = 0
     scoreCIRCLE = 0
-    for x in range(SIZE):
+    for x in range(const.SIZE):
         temp = 0
         count = 0
         longestcount = 0
 
-        for y in range(SIZE):
-            if curplansza[x,y] == CIRCLE:
+        for y in range(const.SIZE):
+            if curplansza[x,y] == const.CIRCLE:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -31,8 +25,8 @@ def winRows(curplansza):
             #cross
         count = 0
         longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CROSS:
+        for y in range(const.SIZE):
+            if curplansza[x,y] == const.CROSS:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -51,13 +45,13 @@ def winRows(curplansza):
 def winCols(curplansza):
     scoreCROSS = 0
     scoreCIRCLE = 0
-    for x in range(SIZE):
+    for x in range(const.SIZE):
         temp = 0
         count = 0
         longestcount = 0
        
-        for y in range(SIZE):
-            if curplansza[y,x] == CIRCLE:
+        for y in range(const.SIZE):
+            if curplansza[y,x] == const.CIRCLE:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -71,8 +65,8 @@ def winCols(curplansza):
             #cross
         count = 0
         longestcount = 0
-        for y in range(SIZE):
-            if curplansza[y,x] == CROSS:
+        for y in range(const.SIZE):
+            if curplansza[y,x] == const.CROSS:
                 count+=1
                 if count > longestcount:
                     longestcount = count

@@ -1,14 +1,4 @@
-EMPTY  = 0
-CIRCLE = 1
-CROSS  = 2
-SIZE   = 7
-WIN    = 5
-START_SIDE  = CROSS
-DEPTH = 2
-#ai defines
-SCORE_NEIGHBOUR_ENEMY = 5
-SCORE_NEIGHBOUR_FRIENDLY = 3
-SCORE_NEIGHBOUR_EMPTY = 1
+import constants as const
 
 def diffState(origplansza,newplansza):
     diffx=6
@@ -18,8 +8,8 @@ def diffState(origplansza,newplansza):
     #print("diffstate2")
     #debugPlansza(newplansza)
     #print("enddiffstate")
-    for x in range(SIZE):
-        for y in range(SIZE):
+    for x in range(const.SIZE):
+        for y in range(const.SIZE):
             if origplansza[x,y] != newplansza[x,y]:
                 diffx = x
                 diffy = y
@@ -32,8 +22,8 @@ def scoreMiddle(oldplansza, newplansza):
     scoreCross = 0
     
     tempx,tempy = diffState(oldplansza, newplansza)
-    if newplansza[tempx,tempy] == CIRCLE:
-        scoreCircle=(tempx%(SIZE/2+1))+(tempy%(SIZE/2+1))
+    if newplansza[tempx,tempy] == const.CIRCLE:
+        scoreCircle=(tempx%(const.SIZE/2+1))+(tempy%(const.SIZE/2+1))
     return scoreCircle, scoreCross
 
 def longestWinStreak(plansza):
@@ -74,13 +64,13 @@ def scoreMaybeCols(curplansza):
     
     scoreCROSS = 0
     scoreCIRCLE = 0
-    for x in range(SIZE):
+    for x in range(const.SIZE):
         temp = 0
         count = 0
         longestcount = 0
        
-        for y in range(SIZE):
-            if curplansza[y,x] != CROSS:
+        for y in range(const.SIZE):
+            if curplansza[y,x] != const.CROSS:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -93,8 +83,8 @@ def scoreMaybeCols(curplansza):
             #cross
         count = 0
         longestcount = 0
-        for y in range(SIZE):
-            if curplansza[y,x] != CIRCLE:
+        for y in range(const.SIZE):
+            if curplansza[y,x] != const.CIRCLE:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -114,13 +104,13 @@ def scoreMaybeRows(curplansza):
     
     scoreCROSS = 0
     scoreCIRCLE = 0
-    for x in range(SIZE):
+    for x in range(const.SIZE):
         temp = 0
         count = 0
         longestcount = 0
        
-        for y in range(SIZE):
-            if curplansza[x,y] != CROSS:
+        for y in range(const.SIZE):
+            if curplansza[x,y] != const.CROSS:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -133,8 +123,8 @@ def scoreMaybeRows(curplansza):
             #cross
         count = 0
         longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] != CIRCLE:
+        for y in range(const.SIZE):
+            if curplansza[x,y] != const.CIRCLE:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -154,13 +144,13 @@ def scoreCols(curplansza):
     
     scoreCROSS = 0
     scoreCIRCLE = 0
-    for x in range(SIZE):
+    for x in range(const.SIZE):
         temp = 0
         count = 0
         longestcount = 0
        
-        for y in range(SIZE):
-            if curplansza[y,x] == CIRCLE:
+        for y in range(const.SIZE):
+            if curplansza[y,x] == const.CIRCLE:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -173,8 +163,8 @@ def scoreCols(curplansza):
             #cross
         count = 0
         longestcount = 0
-        for y in range(SIZE):
-            if curplansza[y,x] == CROSS:
+        for y in range(const.SIZE):
+            if curplansza[y,x] == const.CROSS:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -193,13 +183,13 @@ def scoreRows(curplansza):
     
     scoreCROSS = 0
     scoreCIRCLE = 0
-    for x in range(SIZE):
+    for x in range(const.SIZE):
         temp = 0
         count = 0
         longestcount = 0
        
-        for y in range(SIZE):
-            if curplansza[x,y] == CIRCLE:
+        for y in range(const.SIZE):
+            if curplansza[x,y] == const.CIRCLE:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -212,8 +202,8 @@ def scoreRows(curplansza):
             #cross
         count = 0
         longestcount = 0
-        for y in range(SIZE):
-            if curplansza[x,y] == CROSS:
+        for y in range(const.SIZE):
+            if curplansza[x,y] == const.CROSS:
                 count+=1
                 if count > longestcount:
                     longestcount = count
@@ -231,35 +221,35 @@ def scoreRows(curplansza):
 def freeSpacesScore(curplansza):
     scoreCROSS = 0
     scoreCIRCLE = 0
-    for x in range(SIZE):
-        for y in range(SIZE):
-            if curplansza[y,x] == CIRCLE:
+    for x in range(const.SIZE):
+        for y in range(const.SIZE):
+            if curplansza[y,x] == const.CIRCLE:
                 for helpX in range(-1,2,1):
                     for helpY in range(-1,2,1):            
                         if checkCenter(helpX,helpY):
                             if checkOutOfRange(x,helpX,y,helpY):
-                                if curplansza[y+helpY,x+helpX] == CIRCLE:
-                                    scoreCIRCLE+=SCORE_NEIGHBOUR_FRIENDLY
+                                if curplansza[y+helpY,x+helpX] == const.CIRCLE:
+                                    scoreCIRCLE+=const.SCORE_NEIGHBOUR_FRIENDLY
                                 if curplansza[y+helpY,x+helpX] == 0:
-                                    scoreCIRCLE+=SCORE_NEIGHBOUR_EMPTY
-                                if curplansza[y+helpY,x+helpX] == CROSS:
-                                    scoreCIRCLE+=SCORE_NEIGHBOUR_ENEMY
+                                    scoreCIRCLE+=const.SCORE_NEIGHBOUR_EMPTY
+                                if curplansza[y+helpY,x+helpX] == const.CROSS:
+                                    scoreCIRCLE+=const.SCORE_NEIGHBOUR_ENEMY
                                     #print(str(helpY) + " " + str(helpX))
                                 
                                     
                         
-        for y in range(SIZE):
-            if curplansza[y,x] == CROSS:
+        for y in range(const.SIZE):
+            if curplansza[y,x] == const.CROSS:
                 for helpX in range(-1,2,1):
                     for helpY in range(-1,2,1):
                          if checkCenter(helpX,helpY):
                             if checkOutOfRange(x,helpX,y,helpY):
-                                if curplansza[y+helpY,x+helpX] == CROSS:
-                                    scoreCROSS+=SCORE_NEIGHBOUR_FRIENDLY
+                                if curplansza[y+helpY,x+helpX] == const.CROSS:
+                                    scoreCROSS+=const.SCORE_NEIGHBOUR_FRIENDLY
                                 if curplansza[y+helpY,x+helpX] == 0:
-                                    scoreCROSS+=SCORE_NEIGHBOUR_EMPTY
-                                if curplansza[y+helpY,x+helpX] == CIRCLE:
-                                    scoreCROSS+=SCORE_NEIGHBOUR_ENEMY
+                                    scoreCROSS+=const.SCORE_NEIGHBOUR_EMPTY
+                                if curplansza[y+helpY,x+helpX] == const.CIRCLE:
+                                    scoreCROSS+=const.SCORE_NEIGHBOUR_ENEMY
     #print(str(scoreCIRCLE) + " " + str(scoreCROSS))
     return scoreCIRCLE,scoreCROSS
 def checkCenter(x,y):
@@ -269,11 +259,11 @@ def checkCenter(x,y):
     return True
 
 def checkOutOfRange(x, helpX , y , helpY):
-    if x+helpX >= SIZE:
+    if x+helpX >= const.SIZE:
         return False
     if x+helpX < 0:
         return False
-    if y+helpY >= SIZE:
+    if y+helpY >= const.SIZE:
         return False
     if y+helpY < 0:
         return False
