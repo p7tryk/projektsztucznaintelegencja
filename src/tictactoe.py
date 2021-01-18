@@ -187,6 +187,12 @@ def scoreSingle(element):
     tempCross *= SCORE_NEIGHBOUR_MULTIPLIER
     scoreCross += tempCross
     scoreCircle += tempCircle
+    #ocen najblizsze pola
+    tempCircle, tempCross = longestMaybeStreak(element.plansza)
+    tempCircle *= SCORE_LONGEST_MULTIPLIER
+    tempCross *= SCORE_LONGEST_MULTIPLIER
+    scoreCross += tempCross
+    scoreCircle += tempCircle
 
     #na pierwszej generacji
     if element.prev!= None:
@@ -197,9 +203,9 @@ def scoreSingle(element):
 
     win = checkwin(element.plansza)
     if element.side == CIRCLE and win:
-        scoreCircle += 1000
+        scoreCircle += 100000
     if element.side == CROSS and win:
-        scoreCross += 1000
+        scoreCross += 100000
 
 
     element.scoreCircle = scoreCircle
@@ -313,6 +319,22 @@ def longestWinStreak(plansza):
     scoreCircle += tempCircle
 
     tempCircle, tempCross = scoreCols(plansza)
+    scoreCross += tempCross
+    scoreCircle += tempCircle
+
+    return scoreCircle, scoreCross
+def longestMaybeStreak(plansza):
+    """ returns scoreCircle,scoreCross"""
+    scoreCross = 0
+    scoreCircle = 0
+    tempCross = 0
+    tempCircle = 0
+
+    tempCircle, tempCross = scoreMaybeRows(plansza)
+    scoreCross += tempCross
+    scoreCircle += tempCircle
+
+    tempCircle, tempCross = scoreMaybeCols(plansza)
     scoreCross += tempCross
     scoreCircle += tempCircle
 
@@ -449,7 +471,84 @@ def scoreCols(curplansza):
     #print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
         #default
     return scoreCIRCLE,scoreCROSS
+def scoreMaybeRows(curplansza):
+    """mozliwe rzedy"""
+    
+    scoreCROSS = 0
+    scoreCIRCLE = 0
+    for x in range(SIZE):
+        temp = 0
+        count = 0
+        longestcount = 0
+       
+        for y in range(SIZE):
+            if curplansza[x,y] != CROSS:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        
+        
+        temp = longestcount
 
+            #cross
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[x,y] != CIRCLE:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        
+        if temp > scoreCIRCLE:
+            scoreCIRCLE = temp
+        if longestcount > scoreCROSS:
+            scoreCROSS = longestcount
+    #print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
+        #default
+    return scoreCIRCLE,scoreCROSS
+def scoreMaybeCols(curplansza):
+    """mozliwe cols"""
+    
+    scoreCROSS = 0
+    scoreCIRCLE = 0
+    for x in range(SIZE):
+        temp = 0
+        count = 0
+        longestcount = 0
+       
+        for y in range(SIZE):
+            if curplansza[y,x] != CROSS:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        
+        
+        temp = longestcount
+
+            #cross
+        count = 0
+        longestcount = 0
+        for y in range(SIZE):
+            if curplansza[y,x] != CIRCLE:
+                count+=1
+                if count > longestcount:
+                    longestcount = count
+            else:
+                count=0
+        
+        if temp > scoreCIRCLE:
+            scoreCIRCLE = temp
+        if longestcount > scoreCROSS:
+            scoreCROSS = longestcount
+    #print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
+        #default
+    return scoreCIRCLE,scoreCROSS
 def winCols(curplansza):
     scoreCROSS = 0
     scoreCIRCLE = 0
