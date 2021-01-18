@@ -374,42 +374,6 @@ def winCols(curplansza):
         #default
     return False
 
-def scoreCols(curplansza):
-    scoreCROSS = 0
-    scoreCIRCLE = 0
-    for x in range(SIZE):
-        temp = 0
-        count = 0
-        longestcount = 0
-       
-        for y in range(SIZE):
-            if curplansza[y,x] == CIRCLE:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-            else:
-                count=0
-        
-        temp = longestcount
-
-            #cross
-        count = 0
-        longestcount = 0
-        for y in range(SIZE):
-            if curplansza[y,x] == CROSS:
-                count+=1
-                if count > longestcount:
-                    longestcount = count
-            else:
-                count=0
-        if temp > scoreCIRCLE:
-            scoreCIRCLE = temp
-        if longestcount > scoreCROSS:
-            scoreCROSS = longestcount
-    print(str(scoreCIRCLE) + " " + str(scoreCROSS) + " " + str(x))
-        #default
-    return scoreCIRCLE,scoreCROSS
-
 def winDiag(curplansza):
     """wygrywanie przez skos"""
     #FIXME: zrobic
