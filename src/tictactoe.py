@@ -121,6 +121,11 @@ class gamestate:
 def diffState(origplansza,newplansza):
     diffx=6
     diffy=6
+    print("diffstate1")
+    debugPlansza(origplansza)
+    print("diffstate2")
+    debugPlansza(newplansza)
+    print("enddiffstate")
     for x in range(SIZE):
         for y in range(SIZE):
             if origplansza[x,y] != newplansza[x,y]:
@@ -177,7 +182,9 @@ def highestScore(lista,side):
     for element in lista:
         temp = 0
         temp = element.scoreCross-element.scoreCircle
-        while element.prev:
+        while element.prev != None:
+            if element.prev.prev != None:
+                break
             element = element.prev
             temp +=element.scoreCross-element.scoreCircle
         scoreList.append(temp)
