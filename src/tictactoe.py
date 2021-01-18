@@ -8,14 +8,20 @@ PLAYER_FIRST = True
 PVP_MODE = False
 
 #constants
+EMPTY  = 0
 CIRCLE = 1
 CROSS  = 2
 SIZE   = 7
 WIN    = 5
 START_SIDE  = CROSS
 DEPTH = 2
+#ai variables
+SCORE_LONGEST_MULTIPLIER = 10
+SCORE_NEIGHBOUR_MULTIPLIER = 2
+SCORE_NEIGHBOUR_ENEMY = 5
+SCORE_NEIGHBOUR_FRIENDLY = 3
+SCORE_NEIGHBOUR_EMPTY = 1
 #
-
 class gamestate:
     """plansza + wartosc stanu gry"""
     plansza = 0
@@ -122,11 +128,11 @@ class gamestate:
 def diffState(origplansza,newplansza):
     diffx=6
     diffy=6
-    print("diffstate1")
-    debugPlansza(origplansza)
-    print("diffstate2")
-    debugPlansza(newplansza)
-    print("enddiffstate")
+    #print("diffstate1")
+    #debugPlansza(origplansza)
+    #print("diffstate2")
+    #debugPlansza(newplansza)
+    #print("enddiffstate")
     for x in range(SIZE):
         for y in range(SIZE):
             if origplansza[x,y] != newplansza[x,y]:
@@ -169,9 +175,25 @@ def scoreSingle(element):
     tempCircle = 0
     tempCross = 0
 
+    #najdluzsze sciezki w rzedach
     tempCircle, tempCross = longestWinStreak(element.plansza)
+    tempCircle *= SCORE_LONGEST_MULTIPLIER
+    tempCross *= SCORE_LONGEST_MULTIPLIER
     scoreCross += tempCross*tempCross
     scoreCircle += tempCircle*tempCircle
+    #ocen najblizsze pola
+    tempCircle, tempCross = freeSpacesScore(element.plansza)
+    tempCircle *= SCORE_NEIGHBOUR_MULTIPLIER
+    tempCross *= SCORE_NEIGHBOUR_MULTIPLIER
+    scoreCross += tempCross
+    scoreCircle += tempCircle
+
+    #na pierwszej generacji
+    if element.prev!= None:
+        tempCircle, tempCross = scoreMiddle(element.prev.plansza,element.plansza)
+        scoreCross += tempCross*tempCross
+        scoreCircle += tempCircle*tempCircle
+        
 
     win = checkwin(element.plansza)
     if element.side == CIRCLE and win:
@@ -183,7 +205,66 @@ def scoreSingle(element):
     element.scoreCircle = scoreCircle
     element.scoreCross = scoreCross
     return
+def scoreMiddle(oldplansza, newplansza):
 
+    scoreCircle = 0
+    scoreCross = 0
+    
+    tempx,tempy = diffState(oldplansza, newplansza)
+    if newplansza[tempx,tempy] == CIRCLE:
+        scoreCircle=(tempx%(SIZE/2+1))+(tempy%(SIZE/2+1))
+    return scoreCircle, scoreCross
+def freeSpacesScore(curplansza):
+    scoreCROSS = 0
+    scoreCIRCLE = 0
+    for x in range(SIZE):
+        for y in range(SIZE):
+            if curplansza[y,x] == CIRCLE:
+                for helpX in range(-1,2,1):
+                    for helpY in range(-1,2,1):            
+                        if checkCenter(helpX,helpY):
+                            if checkOutOfRange(x,helpX,y,helpY):
+                                if curplansza[y+helpY,x+helpX] == CIRCLE:
+                                    scoreCIRCLE+=SCORE_NEIGHBOUR_FRIENDLY
+                                if curplansza[y+helpY,x+helpX] == 0:
+                                    scoreCIRCLE+=SCORE_NEIGHBOUR_EMPTY
+                                if curplansza[y+helpY,x+helpX] == CROSS:
+                                    scoreCIRCLE+=SCORE_NEIGHBOUR_ENEMY
+                                    #print(str(helpY) + " " + str(helpX))
+                                
+                                    
+                        
+        for y in range(SIZE):
+            if curplansza[y,x] == CROSS:
+                for helpX in range(-1,2,1):
+                    for helpY in range(-1,2,1):
+                         if checkCenter(helpX,helpY):
+                            if checkOutOfRange(x,helpX,y,helpY):
+                                if curplansza[y+helpY,x+helpX] == CROSS:
+                                    scoreCROSS+=SCORE_NEIGHBOUR_FRIENDLY
+                                if curplansza[y+helpY,x+helpX] == 0:
+                                    scoreCROSS+=SCORE_NEIGHBOUR_EMPTY
+                                if curplansza[y+helpY,x+helpX] == CIRCLE:
+                                    scoreCROSS+=SCORE_NEIGHBOUR_ENEMY
+    #print(str(scoreCIRCLE) + " " + str(scoreCROSS))
+    return scoreCIRCLE,scoreCROSS
+
+def checkCenter(x,y):
+    if x == 0:
+        if y == 0:
+            return False
+    return True
+
+def checkOutOfRange(x, helpX , y , helpY):
+    if x+helpX >= SIZE:
+        return False
+    if x+helpX < 0:
+        return False
+    if y+helpY >= SIZE:
+        return False
+    if y+helpY < 0:
+        return False
+    return True
 def highestScore(lista,side):
     #BFS
     scoreList = []
@@ -200,14 +281,14 @@ def highestScore(lista,side):
     for tempscore in scoreList:
         if side == CROSS: #jezeli krzyzyk to im wiekszy (na plusie) tym lepiej
             if tempscore > bestScore:
-                bestScore = score
-                temp = scoreList.index(score)
+                bestScore = tempscore
+                temp = scoreList.index(tempscore)
                 #print("index of scorelist ="+str(temp))
                 bestState = lista[temp]
         else:
             if tempscore < bestScore:
-                bestScore = score
-                temp = scoreList.index(score)
+                bestScore = tempscore
+                temp = scoreList.index(tempscore)
                 #print("index of scorelist ="+str(temp))
                 bestState = lista[temp]
 
