@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """ logika gry kolko i krzyzyk """
+import time
 import numpy as np
 
 #gamemode
 PLAYER_FIRST = True
-PVP_MODE = True
+PVP_MODE = False
 
 #constants
 CIRCLE = 1
@@ -20,16 +21,15 @@ class gamestate:
     scoreCircle = 0
     scoreCross = 0
     side = START_SIDE
-    prev = 0
+    prev = None
     current = False
-    
-    
+
+
     def __init__(self, plansza = np.zeros(shape = (SIZE,SIZE)), side = START_SIDE):
         self.plansza = plansza
         self.side = side
-        self.prev = plansza
-        
-        
+
+
     def getstate(self):
         return self.plansza
 
@@ -78,26 +78,32 @@ class gamestate:
     def automatedmove(self):
         
         """ tutaj wszystko zwiazane z sztuczna intelgencja"""
+        #time.sleep(3) #FIXME: usunac na koniec
+
         level1 = []
         level2 = []
         lastlevel = []
 
-        level1 = expand(self.plansza,self.side,level1)
+        level1 = expand(self,self.side,level1)
         score(level1)
-        for element in level1:
-            level2 = expand(element.plansza,element.side, level2)
-        score(level2)
+        # for element in level1:
+        #     level2 = expand(element.plansza,element.side, level2)
+        # score(level2)
 
         #TBD ile tych poziomow ma byc
         #
         #
 
-        for element in level2:
-            lastlevel = expand(element.plansza,element.side, lastlevel)
+        for element in level1:
+            lastlevel = expand(element,element.side, lastlevel)
         score(lastlevel)
         desiredState = highestScore(lastlevel,self.side)
+        tempx, tempy = diffState(self.plansza,desiredState.plansza)
 
-        tempx, tempy = diffState(self.plansza,desiredState)
+        print("input do automatedmove")
+        debugPlansza(self.plansza)
+        print("endinput do automatedmove")
+        print("makemove(" + str(tempx) + "," + str(tempy)+")")
         self.makemove(tempx,tempy)
         state.print()
         return
@@ -113,8 +119,8 @@ class gamestate:
 
 
 def diffState(origplansza,newplansza):
-    diffx=0
-    diffy=0
+    diffx=6
+    diffy=6
     for x in range(SIZE):
         for y in range(SIZE):
             if origplansza[x,y] != newplansza[x,y]:
@@ -123,15 +129,20 @@ def diffState(origplansza,newplansza):
 
     return diffx,diffy
 
-def expand(plansza,side,lista):
+def expand(oldgamestate,side,lista):
     """ ekspansja """
+    elements = 0
     for x in range(SIZE):
         for y in range(SIZE):
-            if canYou(plansza, x, y):
-                newplansza = gamestate(plansza,side)
-                newplansza.makemove(x,y)
-                newplansza.prev = plansza
-                lista.append(newplansza)
+            if canYou(oldgamestate.plansza, x, y):
+                newgamestate = gamestate(np.copy(oldgamestate.plansza),side)
+                newgamestate.makemove(x,y)
+                newgamestate.prev = oldgamestate
+                lista.append(newgamestate)
+                elements+=1
+    print("ekspansja zakonczona elementow=" + str(elements))
+    if elements == 0:
+        debugPlansza(oldgamestate.plansza)
     return lista
 
 def canYou(plansza, x,y):
@@ -141,6 +152,7 @@ def canYou(plansza, x,y):
 
 def score(lista):
     """ nadawanie wartosci, argumenty zawsze kolko,krzyzyk = funkcja()"""
+    print("scoring len(lista)= " + str(len(lista)))
     for element in lista:
         scoreSingle(element)
  
@@ -165,23 +177,25 @@ def highestScore(lista,side):
     for element in lista:
         temp = 0
         temp = element.scoreCross-element.scoreCircle
-        while element.current == False:
+        while element.prev:
             element = element.prev
             temp +=element.scoreCross-element.scoreCircle
         scoreList.append(temp)
 
-    bestState =0
-    bestScore =0
+    bestState = lista[0]
+    bestScore = 0
     for tempscore in scoreList:
         if side == CROSS: #jezeli krzyzyk to im wiekszy (na plusie) tym lepiej
             if tempscore > bestScore:
                 bestScore = score
                 temp = scoreList.index(score)
+                print("index of scorelist ="+str(temp))
                 bestState = lista[temp]
         else:
             if tempscore < bestScore:
                 bestScore = score
                 temp = scoreList.index(score)
+                print("index of scorelist ="+str(temp))
                 bestState = lista[temp]
 
     #chemy dostac nastepny ruch
@@ -210,7 +224,15 @@ def longestWinStreak(plansza):
 
     return scoreCircle, scoreCross
 
-
+def debugPlansza(plansza):
+    tempstate = gamestate(plansza)
+    scoreSingle(tempstate)
+    for x in range(0,SIZE):
+        print("\n----------------------------")
+        for y in range(0, SIZE):
+            print(" " + tempstate.get(x,y) + " ", end = "|")
+    print("\n----------------------------" + "krzyzyk score=" + str(tempstate.scoreCross) , end = "\n")
+    print("                            " + "kolko score=" + str(tempstate.scoreCircle))
 
 #wincheck
 def winRows(curplansza):
@@ -394,7 +416,7 @@ def checkwin(curplansza):
         return True
    
     if winDiag(curplansza):
-        print("win")
+        print("win diag")
         return True
     return False
 
